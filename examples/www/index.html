@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Go Demo</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script src="https://lib.sinaapp.com/js/jquery/1.9.1/jquery-1.9.1.min.js"></script>
+  </head> 
+  
+  <script> 
+  	 function getprofile(){
+   		 $.ajax({
+			  	url : '/api/profile?name=jack',
+				  dataType: 'json',
+				  type : 'GET',
+				  async: true,
+				  cache : false,
+				  success : function(data) {
+				   	alert(JSON.stringify(data))				  	
+				  },
+				  error : function(xhr, status, err) {  
+				  	 alert(xhr.responseText)	
+     			}
+			  });		  
+		}
+		
+		
+  	 function setprofile(){
+  	 	 var data = {"name": "jack", "age": 20};
+	 		 $.ajax({
+			  	url : '/api/profile',
+				  dataType: 'json',
+				  data : JSON.stringify(data),
+				  type : 'POST',
+				  async:true,
+				  cache : false,
+				  success : function(data) {
+				   	alert(JSON.stringify(data));
+				  },
+				  error : function(xhr, status, err) {  
+				  	  alert(xhr.responseText);
+     			}
+			  });
+		}			
+			
+			
+			
+			
+  	 
+ </script>     
+  
+  <body>
+  	 <h1>demos about golang api invoke</h1>
+    <div>1. <button onclick="getprofile();">get profile</button> </div> </br>
+     	
+     <div>2. <a href="/api/export?name=jack">download profile</a> </div> </br>
+      	
+    <div>3. upload image through form
+	    <form action="/api/avatar" method="post" enctype ="multipart/form-data"> 
+				<div>select file : <input name="avatar" type="file" /> </div>
+				<div> set name: <input name="name" type="text" value="jack" /> </div>
+				<input type="submit" name="upload" id="Button1" />
+			</form>
+		</div> </br>
+		
+		<div>4. upload profile by posting a json string
+			<button onclick="setprofile();">set profile</button>
+		</div> </br>
+		
+  </body>  
+
+  
+</html>
