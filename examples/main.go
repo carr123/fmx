@@ -58,6 +58,7 @@ func main() {
 
 		c.Writer.Header().Set("Content-Disposition", fmt.Sprintf("attachment;filename=%s.txt", name))
 		c.Writer.Header().Set("Content-Type", "application/octet-stream")
+		c.Writer.WriteHeader(200)
 
 		filecontent := fmt.Sprintf("name=%s age=%d", name, 20)
 		io.Copy(output, strings.NewReader(filecontent))
