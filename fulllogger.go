@@ -6,7 +6,6 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	"net/http/httptest"
 	"time"
 )
 
@@ -44,23 +43,18 @@ func _writeRequestLog(c *Context, t time.Time, logwriter io.Writer) {
 	}
 }
 
-func _writeResponseLog(c *Context, logwriter io.Writer, code int, header http.Header, respBody *bytes.Buffer) {
+func _writeResponseLog(c *Context, logwriter io.Writer) {
 	io.WriteString(logwriter, "----------------\r\n")
-	io.WriteString(logwriter, "statuscode:"+fmt.Sprintf("%03d", code)+"\r\n")
-
-	for k, v := range header {
-		c.Writer.Header().Set(k, v[0])
-	}
-
-	c.Writer.WriteHeader(code)
+	io.WriteString(logwriter, "statuscode:"+fmt.Sprintf("%03d", c.Writer.GetStatusCode())+"\r\n")
 
 	var respHeader bytes.Buffer
 	c.Writer.Header().Write(&respHeader)
 	io.WriteString(logwriter, respHeader.String()+"\r\n")
 
-	if respBody.Len() > 0 {
-		io.WriteString(logwriter, "\r\n"+respBody.String()+"\r\n")
-		io.Copy(c.Writer, respBody)
+	if len(c.Writer.GetRespBody()) > 0 {
+		io.WriteString(logwriter, "\r\n")
+		logwriter.Write(c.Writer.GetRespBody())
+		io.WriteString(logwriter, "\r\n")
 	}
 }
 
@@ -77,9 +71,7 @@ func FullLoggerWithFunc(fn LoggerFunc) HandlerFunc {
 		logWriter := &bytes.Buffer{}
 		_writeRequestLog(c, start, logWriter)
 
-		rec := httptest.NewRecorder()
-		originWriter := c.Writer
-		c.Writer = NewWriter(rec)
+		c.Writer.EnableRecordBody()
 
 		defer func() {
 			if e := recover(); e != nil {
@@ -90,18 +82,17 @@ func FullLoggerWithFunc(fn LoggerFunc) HandlerFunc {
 				io.WriteString(logWriter, panicInfo)
 				fn(c, logWriter.Bytes())
 
-				if originWriter.GetStatusCode() == 0 {
-					originWriter.WriteHeader(http.StatusInternalServerError)
+				if c.Writer.GetStatusCode() == 0 {
+					c.Writer.WriteHeader(http.StatusInternalServerError)
 				}
 			}
 		}()
 
 		c.Next()
-
-		c.Writer = originWriter
-		_writeResponseLog(c, logWriter, rec.Code, rec.Header(), rec.Body)
-
 		end := time.Now()
+
+		_writeResponseLog(c, logWriter)
+
 		latency := end.Sub(start)
 
 		szLatency := fmt.Sprintf("latency:%5.3fms\r\n", float64(latency)/float64(time.Millisecond))

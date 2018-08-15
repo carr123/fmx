@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmx"
+	"github.com/carr123/fmx"
 )
 
 //http basic auth
