@@ -1,0 +1,80 @@
+package main
+
+import (
+	"fmt"
+	"net/http"
+
+	"github.com/carr123/fmx"
+)
+
+func handleGet(c *fmx.Context) {
+	c.JSON(200, fmx.H{"name": "jack", "age": 23})
+}
+
+func main() {
+	router := fmx.New()
+	router.GET("/api/profile", fmx.FullLogger(), handleGet)
+
+	fmt.Println("server start ...")
+	fmt.Println("open your browser and navigate to: http://127.0.0.1:8080/api/profile")
+	err := http.ListenAndServe("127.0.0.1:8080", router)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+1. router.GET("/api/profile", fmx.FullLogger(), handleGet)
+
+   this means, if your issue "GET /api/profile" request, two functions "fmx.FullLogger()" and "handleGet" will be called to serve your request.
+   this's what the concept "middle ware" means. 
+   middle wares means a series of functions, invoked one by one in a specific http request.
+   each middle ware is a handler. we will treat the terms "middle ware" and "handler" as the same meaning.
+   each middle ware has something to do. for example, a password-check middle ware can check your password, if password not correct, it can abort this request.
+   
+   
+2. what's fmx.FullLogger()
+
+   fmx.FullLogger can record your http request and response information, often for debug purpose.
+   
+   
+3. how to write middle ware
+   you can refer to "fmx.FullLogger()", dive into its source code.
+   
+   let's write one middle ware to record how long it takes to server a http request.
+   
+   router.GET("/api/profile", ReqTime, handleGet)
+   func ReqTime(c *fmx.Context) {
+			t1 := time.Now()
+			c.Next()
+			t2 := time.Now()
+			fmt.Println("this request time taken:", t2.Sub(t1))
+	 }
+   
+   if your issue "GET /api/profile" request, "ReqTime" is first be called, so record current time t1, 
+   c.Next() means calling the subsequent handlers, so "handleGet" will be called here inside function "ReqTime".
+   "handleGet" may have your business logic codes, access databases, time consuming calcuting etc.
+   only after all subsequent handlers be called, c.Next() will return.
+   then, we record current time t2, so we can diff the 2 timestamps to see how long the business logic takes.
+   
+   
+   let's write another middle ware to check password
+   
+   router.GET("/api/profile", ReqTime, CheckPasswd, handleGet)
+   
+		func CheckPasswd(c *fmx.Context) {
+			name, passwd, ok := c.Request.BasicAuth()
+			if ok && name == "jack" && passwd == "123" {
+				c.Next()
+			} else {
+				c.Writer.Header().Set("WWW-Authenticate", `Basic realm="User Login"`)
+				c.String(401, "Not Authorized")
+				c.Abort()
+			}
+		}
+	
+	 this's HTTP Basic Auth demo, client must input password to access the service.
+	 
+	 if name and password matches, then call next handlers: c.Next()
+	 otherwise, we abort this request: c.Abort(). subsequent handlers will NOT be called.
+	 
+	 

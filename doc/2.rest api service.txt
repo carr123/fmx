@@ -1,0 +1,49 @@
+package main
+
+import (
+	"fmt"
+	"net/http"
+
+	"github.com/carr123/fmx"
+)
+
+func handleGet(c *fmx.Context) {
+	c.String(200, "welcome")
+	//c.JSON(200, fmx.H{"name": "jack", "age": 23})
+}
+
+func main() {
+	router := fmx.New()
+	router.GET("/api/profile", handleGet)
+
+	fmt.Println("server start ...")
+	fmt.Println("open your browser and navigate to: http://127.0.0.1:8080/api/profile")
+	err := http.ListenAndServe("127.0.0.1:8080", router)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+
+1.  router.GET means if you issue a http GET request to "/api/profile", "handleGet" function will be called to handle your request.
+
+2. fmx.Context is the request context, which stores each request's information. It's NOT goroutine safe.
+   after this request finished or outside function "handleGet", this context variable "c" should NOT be used elsewhere.
+   
+   c.Request  : represent the http request
+   c.Writer   : represent http response
+   
+3. c.String(200, "ok")
+   200 is the http status code 200, indicting "OK"
+   inside c.String, it invoke c.Writer to send http response. check c.String to see details.
+   
+   
+4. besides GET, there are router.POST, router.DELETE etc functions to server other http requests.
+
+5. c.JSON(200, fmx.H{"name": "jack", "age": 23})
+   c.JSON is a helper function to send json string response to client.
+   this function marshals the 2nd parameter to json string.
+   fmx.H{} is a alias to map[string]interface{}
+   
+   
+   

@@ -1,0 +1,57 @@
+three ways to use middle ware
+
+1. 
+
+func main() {
+	router := fmx.New()
+	
+	router.GET("/api/profile", handleGet)
+	router.Use(fmx.FullLogger())
+	router.GET("/api/use", GetUser)
+	
+
+	fmt.Println("server start ...")
+	fmt.Println("open your browser and navigate to: http://127.0.0.1:8080/api/profile")
+	err := http.ListenAndServe("127.0.0.1:8080", router)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+"router.Use(fmx.FullLogger())" means we will use FullLogger middle ware from now on 
+   
+"GET /api/profile" request will NOT print fulllog
+"GET /api/use" request will print fulllog
+
+   
+2.
+func main() {
+	router1 := fmx.New()
+	router1.GET("/api/profile", handleGet)
+
+	router2 := router1.Group(fmx.FullLogger())
+	router2.GET("/api/use", GetUser)
+	
+
+	fmt.Println("server start ...")
+	fmt.Println("open your browser and navigate to: http://127.0.0.1:8080/api/profile")
+	err := http.ListenAndServe("127.0.0.1:8080", router)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+"router1.Group" means we copy router1 to router2. and use FullLogger in router2.
+now router2 has middle ware "fmx.FullLogger()", All requests under router2 will print fulllog.
+in this case, fmx.FullLogger is applied to router2, but not applied to router1
+
+
+
+
+3. 
+router.GET("/api/profile", fmx.FullLogger(), handleGet)
+
+this means "FullLogger" applied to "GET /api/profile"
+
+
+

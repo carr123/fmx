@@ -1,0 +1,33 @@
+1. 
+
+func main() {
+	router := fmx.New()
+	
+	router.POST("/api/profile", PostProfile)
+	
+
+	fmt.Println("server start ...")
+	err := http.ListenAndServe("127.0.0.1:8080", router)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+
+func PostProfile(c *fmx.Context) {
+	var User struct {
+		Name string `json:"name"`
+		Age  int    `json:"age"`
+	}
+
+	data := c.ReadBody()
+	json.Unmarshal(data, &User)
+
+	fmt.Println("you post:", string(data))
+
+	c.JSON(200, fmx.H{"success": true})
+}
+
+
+c.ReadBody() means read data from http request body.
+

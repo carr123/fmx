@@ -22,7 +22,7 @@ var jsonContentType = []string{"application/json; charset=utf-8"}
 var plainContentType = []string{"text/plain; charset=utf-8"}
 
 type HandlerFunc func(*Context)
-type H map[string]interface{}
+type H = map[string]interface{}
 
 type Context struct {
 	Writer   IWriter

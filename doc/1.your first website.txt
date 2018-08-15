@@ -1,0 +1,27 @@
+package main
+
+import (
+	"fmt"
+	"net/http"
+
+	"github.com/carr123/fmx"
+)
+
+func main() {
+	router := fmx.New()
+	router.ServeDir("/", "d:/www") //server your static web pages
+
+	fmt.Println("server start ...")
+	fmt.Println("open your browser and navigate to: http://127.0.0.1:8080")
+	err := http.ListenAndServe("127.0.0.1:8080", router)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+
+1. router is instance of fmx, which implement function "ServeHTTP", so is can handle http requests and can pass to http.ListenAndServe.
+2. router.ServeDir means your website's root address is "/", your web pages resides in "d:/www". please put your own index.html in d:/www to see a demo.
+
+
+
