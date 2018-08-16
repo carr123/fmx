@@ -52,8 +52,8 @@ func main() {
    
    if your issue "GET /api/profile" request, "ReqTime" is first be called, so record current time t1, 
    c.Next() means calling the subsequent handlers, so "handleGet" will be called here inside function "ReqTime".
-   "handleGet" may have your business logic codes, access databases, time consuming calcuting etc.
-   only after all subsequent handlers be called, c.Next() will return.
+   "handleGet" may have your business logic codes, access databases, perform time consuming jobs etc.
+   only after all subsequent handler functions be called, c.Next() will return.
    then, we record current time t2, so we can diff the 2 timestamps to see how long the business logic takes.
    
    
