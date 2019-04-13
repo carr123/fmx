@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
+	"net/http/httputil"
 	"time"
 )
 
@@ -13,6 +13,21 @@ func FullLogger() HandlerFunc {
 	return FullLoggerWithFunc(DefaultLoggerFunc())
 }
 
+func _writeRequestLog(c *Context, t time.Time, logwriter io.Writer) {
+	szReq, err := httputil.DumpRequest(c.Request, true)
+	if err != nil {
+		return
+	}
+
+	szIP := c.ClientIP()
+	io.WriteString(logwriter, "\r\n<----------------------LOG BEGIN----------------------------->\r\n")
+	io.WriteString(logwriter, "requesttime:"+t.Format("2006-01-02 15:04:05")+"\r\n")
+	io.WriteString(logwriter, "clientaddr:"+szIP+"\r\n\r\n")
+	io.Copy(logwriter, bytes.NewReader(szReq))
+	io.WriteString(logwriter, "\r\n")
+}
+
+/*
 func _writeRequestLog(c *Context, t time.Time, logwriter io.Writer) {
 	szIP := c.ClientIP()
 	szProto := c.Request.Proto
@@ -42,6 +57,7 @@ func _writeRequestLog(c *Context, t time.Time, logwriter io.Writer) {
 		io.WriteString(logwriter, "\r\n"+reqBody+"\r\n")
 	}
 }
+*/
 
 func _writeResponseLog(c *Context, logwriter io.Writer) {
 	io.WriteString(logwriter, "----------------\r\n")

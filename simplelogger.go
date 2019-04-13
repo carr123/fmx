@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/http/httputil"
 	"time"
 )
 
@@ -12,6 +13,21 @@ func SimpleLogger() HandlerFunc {
 	return SimpleLoggerWithFunc(DefaultLoggerFunc())
 }
 
+func _writeRequestHeader(c *Context, t time.Time, logwriter io.Writer) {
+	szReq, err := httputil.DumpRequest(c.Request, false)
+	if err != nil {
+		return
+	}
+	szIP := c.ClientIP()
+
+	io.WriteString(logwriter, "\r\n<----------------------LOG BEGIN----------------------------->\r\n")
+	io.WriteString(logwriter, "requesttime:"+t.Format("2006-01-02 15:04:05")+"\r\n")
+	io.WriteString(logwriter, "clientaddr:"+szIP+"\r\n\r\n")
+	io.Copy(logwriter, bytes.NewReader(szReq))
+	io.WriteString(logwriter, "\r\n<body content not printed if there's any>\r\n")
+}
+
+/*
 func _writeRequestHeader(c *Context, t time.Time, logwriter io.Writer) {
 	szIP := c.ClientIP()
 	szProto := c.Request.Proto
@@ -29,6 +45,7 @@ func _writeRequestHeader(c *Context, t time.Time, logwriter io.Writer) {
 	io.WriteString(logwriter, reqHeader.String()+"\r\n")
 	io.WriteString(logwriter, "<body not printed>\r\n")
 }
+*/
 
 func _writeResponseHeader(c *Context, logwriter io.Writer) {
 	io.WriteString(logwriter, "----------------\r\n")
@@ -37,7 +54,7 @@ func _writeResponseHeader(c *Context, logwriter io.Writer) {
 	var respHeader bytes.Buffer
 	c.Writer.Header().Write(&respHeader)
 	io.WriteString(logwriter, respHeader.String()+"\r\n")
-	io.WriteString(logwriter, "<body not printed>\r\n")
+	io.WriteString(logwriter, "<body content not printed if there's any>\r\n")
 }
 
 func SimpleLoggerWithFunc(fn LoggerFunc) HandlerFunc {

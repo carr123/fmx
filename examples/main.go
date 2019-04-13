@@ -12,12 +12,12 @@ import (
 
 func main() {
 	router := fmx.New()
-	router.Use() //fmx.SimpleLogger()
+	router.Use(fmx.SimpleLogger()) // fmx.FullLogger()
 
-	router.GET("/api/profile", fmx.FullLogger(), GetProfile) //get json response
-	router.GET("/api/export", ExportFile)                    //export file (web browser will download this file)
-	router.POST("/api/profile", PostProfile)                 //client post json data to server
-	router.POST("/api/avatar", PostImage)                    //post image to server through form data
+	router.GET("/api/profile", GetProfile)   //get json response
+	router.GET("/api/export", ExportFile)    //export file (web browser will download this file)
+	router.POST("/api/profile", PostProfile) //client post json data to server
+	router.POST("/api/avatar", PostImage)    //post image to server through form data
 
 	router.ServeDir("/", filepath.Join(getAppDir(), "www")) //server your static web pages
 
