@@ -27,38 +27,6 @@ func _writeRequestLog(c *Context, t time.Time, logwriter io.Writer) {
 	io.WriteString(logwriter, "\r\n")
 }
 
-/*
-func _writeRequestLog(c *Context, t time.Time, logwriter io.Writer) {
-	szIP := c.ClientIP()
-	szProto := c.Request.Proto
-	rawPath := c.Request.URL.String()
-	method := c.Request.Method
-
-	var reqHeader bytes.Buffer
-	c.Request.Header.Write(&reqHeader)
-
-	var reqBody string
-	if c.Request.Body != nil {
-		buff := new(bytes.Buffer)
-		io.Copy(buff, c.Request.Body)
-		c.Request.Body.Close()
-		reqBody = buff.String()
-		c.Request.Body = ioutil.NopCloser(buff)
-	}
-
-	io.WriteString(logwriter, "\r\n<----------------------LOG BEGIN----------------------------->\r\n")
-	io.WriteString(logwriter, "requesttime:"+t.Format("2006-01-02 15:04:05")+"\r\n")
-	io.WriteString(logwriter, "clientaddr:"+szIP+"\r\n\r\n")
-	io.WriteString(logwriter, method+" "+rawPath+"  "+szProto+"\r\n")
-	io.WriteString(logwriter, "Host:"+c.Request.Host+"\r\n")
-	io.WriteString(logwriter, reqHeader.String()+"\r\n")
-
-	if len(reqBody) > 0 {
-		io.WriteString(logwriter, "\r\n"+reqBody+"\r\n")
-	}
-}
-*/
-
 func _writeResponseLog(c *Context, logwriter io.Writer) {
 	io.WriteString(logwriter, "----------------\r\n")
 	io.WriteString(logwriter, "statuscode:"+fmt.Sprintf("%03d", c.Writer.GetStatusCode())+"\r\n")
