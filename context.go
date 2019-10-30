@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"math"
 	"net/http"
+	"runtime"
 	"strconv"
 
 	"github.com/CloudyKit/router"
@@ -22,7 +23,7 @@ var jsonContentType = []string{"application/json; charset=utf-8"}
 var plainContentType = []string{"text/plain; charset=utf-8"}
 
 type HandlerFunc func(*Context)
-type H = map[string]interface{}
+type H map[string]interface{}
 
 type Context struct {
 	Writer   IWriter
@@ -243,12 +244,40 @@ func (c *Context) QueryByte(key string, def byte) byte {
 	return byte(i)
 }
 
+/*
 func (c *Context) AddError(err ...error) {
 	for _, item := range err {
 		if item != nil {
 			c._errs = append(c._errs, item)
 			c.HasError = true
 		}
+	}
+}
+*/
+
+func (c *Context) AddError(err error) {
+	if err == nil {
+		return
+	}
+
+	var stackinfo string
+	pc, file, lineno, ok := runtime.Caller(1)
+	if ok {
+		stackinfo = fmt.Sprintf("%s:%d %s", file, lineno, runtime.FuncForPC(pc).Name())
+	}
+
+	if _, ok := err.(*errorString); !ok {
+		e := &errorString{}
+		e.s = err.Error()
+		e.pos = make([]string, 0, 5)
+		e.code = 0
+
+		if len(stackinfo) > 0 {
+			e.pos = append(e.pos, stackinfo)
+		}
+		c._errs = append(c._errs, e)
+	} else {
+		c._errs = append(c._errs, err)
 	}
 }
 

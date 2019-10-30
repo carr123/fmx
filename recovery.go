@@ -37,6 +37,35 @@ func PanicHandler(forward http.Handler, logwriter func(string)) http.HandlerFunc
 	}
 }
 
+/*
+var Recover func()
+Recover = fmx.RecoverFn(func(s string) {
+	fmt.Println(s)
+})
+
+go func(){
+	defer Recover()
+
+}()
+*/
+
+func RecoverFn(logwriter func(string)) func() {
+	return func() {
+		defer func() {
+			if err := recover(); err != nil {
+			}
+		}()
+
+		if err := recover(); err != nil {
+			stack := stack(3)
+			panicInfo := fmt.Sprintf("PANIC: %s\n%s", err, stack)
+			if logwriter != nil {
+				logwriter(panicInfo)
+			}
+		}
+	}
+}
+
 // stack returns a nicely formated stack frame, skipping skip frames
 func stack(skip int) []byte {
 	buf := new(bytes.Buffer) // the returned data
