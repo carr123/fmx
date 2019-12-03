@@ -55,6 +55,14 @@ func (c *Context) ReadBody() []byte {
 	return bin
 }
 
+func (c *Context) ReadnReqBodyJson(v interface{}) error { 
+	bin, err := ioutil.ReadAll(c.Request.Body) 
+	if err != nil {  
+		return err 
+	}
+	return json.Unmarshal(bin, v)
+}
+
 func (c *Context) Next() {
 	c.index++
 	s := int16(len(c.handlers))
