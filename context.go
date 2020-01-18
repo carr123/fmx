@@ -1,6 +1,7 @@
 package fmx
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -23,7 +24,7 @@ var jsonContentType = []string{"application/json; charset=utf-8"}
 var plainContentType = []string{"text/plain; charset=utf-8"}
 
 type HandlerFunc func(*Context)
-type H map[string]interface{}
+type H = map[string]interface{}
 
 type Context struct {
 	Writer   IWriter
@@ -55,10 +56,10 @@ func (c *Context) ReadBody() []byte {
 	return bin
 }
 
-func (c *Context) ReadnReqBodyJson(v interface{}) error { 
-	bin, err := ioutil.ReadAll(c.Request.Body) 
-	if err != nil {  
-		return err 
+func (c *Context) ReadnReqBodyJson(v interface{}) error {
+	bin, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		return err
 	}
 	return json.Unmarshal(bin, v)
 }
@@ -137,9 +138,11 @@ func (c *Context) JSON(code int, v interface{}) {
 	c.Writer.WriteHeader(code)
 
 	if v != nil {
-		if err := json.NewEncoder(c.Writer).Encode(v); err != nil {
+		bin, err := json.Marshal(v)
+		if err != nil {
 			panic(err)
 		}
+		io.Copy(c.Writer, bytes.NewReader(bin))
 	}
 }
 
@@ -251,17 +254,6 @@ func (c *Context) QueryByte(key string, def byte) byte {
 
 	return byte(i)
 }
-
-/*
-func (c *Context) AddError(err ...error) {
-	for _, item := range err {
-		if item != nil {
-			c._errs = append(c._errs, item)
-			c.HasError = true
-		}
-	}
-}
-*/
 
 func (c *Context) AddError(err error) {
 	if err == nil {
