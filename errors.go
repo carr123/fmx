@@ -3,6 +3,7 @@ package fmx
 import (
 	"fmt"
 	"runtime"
+	"strings"
 )
 
 type ErrorWithPos interface {
@@ -66,6 +67,38 @@ func Error(err error, code ...int) ErrorWithPos {
 
 		return e
 	}
+}
+
+func ErrorClone(err error, szExtra ...string) ErrorWithPos {
+	 if err == nil {
+	  return nil
+	 }
+
+	 var stackinfo string
+	 pc, file, lineno, ok := runtime.Caller(1)
+	 if ok {
+	  stackinfo = fmt.Sprintf("%s:%d %s", file, lineno, runtime.FuncForPC(pc).Name())
+	 }
+
+	 e := &errorString{}
+	 e.s = err.Error()
+	 e.pos = make([]string, 0, 5)
+	 e.code = 0
+
+	 if len(szExtra) > 0 {
+	  e.s += strings.Join(szExtra, "")
+	 }
+
+	 if pErr, ok := err.(*errorString); ok {
+	  e.pos = append(e.pos, pErr.pos...)
+	  e.code = pErr.code
+	 }
+
+	 if len(stackinfo) > 0 {
+	  e.pos = append(e.pos, stackinfo)
+	 }
+
+	 return e
 }
 
 func ErrCode(err error, def ...int) int {
