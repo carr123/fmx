@@ -11,6 +11,8 @@ features:
 
 pull the codes. and check examples for detail. have fun !   
 
+more examples see https://github.com/carr123/fmx_demo
+
 
 <pre><code>
 package main
