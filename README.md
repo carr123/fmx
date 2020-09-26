@@ -26,7 +26,7 @@ import (
 )
 
 func main() {
-	router := fmx.New()
+	router := fmx.NewServeMux()
 	router.Use() //fmx.SimpleLogger()
 
 	router.GET("/api/profile", fmx.FullLogger(), GetProfile) //get json response
