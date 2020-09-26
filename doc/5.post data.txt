@@ -1,7 +1,7 @@
 1. 
 
 func main() {
-	router := fmx.New()
+	router := fmx.NewServeMux()
 	
 	router.POST("/api/profile", PostProfile)
 	

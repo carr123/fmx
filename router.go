@@ -14,6 +14,7 @@ type Router struct {
 }
 
 //Use register middleware
+//these middlewares are combined and added to Router
 func (r *Router) Use(middlewares ...HandlerFunc) *Router {
 	r.handlers = append(r.handlers, middlewares...)
 	return r

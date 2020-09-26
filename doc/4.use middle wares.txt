@@ -3,7 +3,7 @@ three ways to use middle ware
 1. 
 
 func main() {
-	router := fmx.New()
+	router := fmx.NewServeMux()
 	
 	router.GET("/api/profile", handleGet)
 	router.Use(fmx.FullLogger())

@@ -133,6 +133,8 @@ func writeContentType(w http.ResponseWriter, value []string) {
 	}
 }
 
+//code: http response code, eg. 200, 404, ...
+//this function marshal v to json string, and send it to client as http response body.
 func (c *Context) JSON(code int, v interface{}) {
 	writeContentType(c.Writer, jsonContentType)
 	c.Writer.WriteHeader(code)

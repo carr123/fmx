@@ -13,7 +13,7 @@ type Engine struct {
 	pool       sync.Pool
 }
 
-func New() *Engine {
+func NewServeMux() *Engine {
 	engine := &Engine{}
 	engine.Router = &Router{
 		handlers: nil,
@@ -23,7 +23,7 @@ func New() *Engine {
 	engine.httprouter = router.New()
 	engine.pool.New = func() interface{} {
 		c := &Context{}
-		c.Writer = &writerImpl{}
+		c.Writer = &WriterImpl{}
 		c.index = -1
 		return c
 	}

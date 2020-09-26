@@ -12,7 +12,7 @@ func handleGet(c *fmx.Context) {
 }
 
 func main() {
-	router := fmx.New()
+	router := fmx.NewServeMux()
 	router.GET("/api/profile", fmx.FullLogger(), handleGet)
 
 	fmt.Println("server start ...")
