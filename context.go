@@ -61,7 +61,10 @@ func (c *Context) ReadReqBodyJson(v interface{}) error {
 	if err != nil {
 		return err
 	}
-	return json.Unmarshal(bin, v)
+
+	d := json.NewDecoder(bytes.NewReader(bin))
+	d.UseNumber()
+	return d.Decode(v)
 }
 
 func (c *Context) Next() {
