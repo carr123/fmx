@@ -11,6 +11,8 @@ features:
 
 pull the codes. and check examples for detail. have fun !   
 
+more examples see https://github.com/carr123/fmx_demo
+
 
 <pre><code>
 package main
@@ -26,7 +28,7 @@ import (
 )
 
 func main() {
-	router := fmx.New()
+	router := fmx.NewServeMux()
 	router.Use() //fmx.SimpleLogger()
 
 	router.GET("/api/profile", fmx.FullLogger(), GetProfile) //get json response
