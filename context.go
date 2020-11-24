@@ -112,7 +112,10 @@ func (c *Context) MustGet(key string) interface{} {
 
 //Param get param from route
 func (c *Context) Param(name string) string {
-	return c.params.ByName(name)
+	if c.params != nil {
+		return c.params.ByName(name)
+	}
+	return ""
 }
 
 func (c *Context) ClientIP() string {

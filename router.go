@@ -20,6 +20,20 @@ func (r *Router) Use(middlewares ...HandlerFunc) *Router {
 	return r
 }
 
+//use fn to handle http 404
+func (r *Router) UseNotFound(fn HandlerFunc) {
+	r.Use(func(c *Context) {
+		originWriter := c.Writer
+		h := &notfound{Realwriter: c.Writer, Is404: false}
+		c.Writer = NewWriter(h)
+		c.Next()
+		c.Writer = originWriter
+		if h.Is404 && fn != nil {
+			fn(c)
+		}
+	})
+}
+
 //GET handle GET method
 func (r *Router) GET(path string, handlers ...HandlerFunc) {
 	r.Handle("GET", path, handlers)
@@ -143,4 +157,29 @@ func (r *Router) combineHandlers(handlers []HandlerFunc) []HandlerFunc {
 	}
 
 	return h
+}
+
+// Conforms to the http.Handler interface.
+func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	handler, variables := r.engine.httprouter.FindRoute(req.Method, req.URL.Path)
+	if handler != nil {
+		handler(w, req, variables)
+		return
+	}
+
+	//handle not found
+	h := make([]HandlerFunc, 0, len(r.handlers)+1)
+	h = append(h, r.handlers...)
+	h = append(h, func(c *Context) {
+		c.String(404, "Not Found")
+	})
+
+	c := r.engine.createContext(w, req)
+	c.params = nil
+	c.handlers = h
+	c.Next()
+	c.Keys = nil
+	c._errs = c._errs[:0]
+	c._logs = c._logs[:0]
+	r.engine.pool.Put(c)
 }

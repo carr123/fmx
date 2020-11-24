@@ -29,17 +29,3 @@ func (c *notfound) WriteHeader(status int) {
 
 	c.Realwriter.WriteHeader(status)
 }
-
-func Code404Handler(fn HandlerFunc) HandlerFunc {
-	return func(c *Context) {
-		originWriter := c.Writer
-		h := &notfound{Realwriter: c.Writer, Is404: false}
-		c.Writer = NewWriter(h)
-		c.Next()
-		c.Writer = originWriter
-
-		if h.Is404 && fn != nil {
-			fn(c)
-		}
-	}
-}

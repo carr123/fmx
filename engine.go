@@ -1,7 +1,6 @@
 package fmx
 
 import (
-	"net/http"
 	"sync"
 
 	"github.com/CloudyKit/router"
@@ -29,9 +28,4 @@ func NewServeMux() *Engine {
 	}
 
 	return engine
-}
-
-// Conforms to the http.Handler interface.
-func (engine *Engine) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	engine.httprouter.ServeHTTP(w, req)
 }
