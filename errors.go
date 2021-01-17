@@ -12,19 +12,15 @@ type ErrorWithPos interface {
 	String() string
 }
 
-func NewError(text string, code ...int) ErrorWithPos {
+func Errorf(code int, format string, a ...interface{}) ErrorWithPos {
 	e := &errorString{}
-	e.s = text
+	e.s = fmt.Sprintf(format, a...)
 	e.pos = make([]string, 0, 5)
-	e.code = 0
+	e.code = code
 
 	pc, file, lineno, ok := runtime.Caller(1)
 	if ok {
 		e.pos = append(e.pos, fmt.Sprintf("%s:%d %s", file, lineno, runtime.FuncForPC(pc).Name()))
-	}
-
-	if len(code) > 0 {
-		e.code = code[0]
 	}
 
 	return e
@@ -69,36 +65,37 @@ func Error(err error, code ...int) ErrorWithPos {
 	}
 }
 
-func ErrorClone(err error, szExtra ...string) ErrorWithPos {
-	 if err == nil {
-	  return nil
-	 }
+//append text description to err, return a new err
+func ErrorAppend(err error, szExtra ...string) ErrorWithPos {
+	if err == nil {
+		return nil
+	}
 
-	 var stackinfo string
-	 pc, file, lineno, ok := runtime.Caller(1)
-	 if ok {
-	  stackinfo = fmt.Sprintf("%s:%d %s", file, lineno, runtime.FuncForPC(pc).Name())
-	 }
+	var stackinfo string
+	pc, file, lineno, ok := runtime.Caller(1)
+	if ok {
+		stackinfo = fmt.Sprintf("%s:%d %s", file, lineno, runtime.FuncForPC(pc).Name())
+	}
 
-	 e := &errorString{}
-	 e.s = err.Error()
-	 e.pos = make([]string, 0, 5)
-	 e.code = 0
+	e := &errorString{}
+	e.s = err.Error()
+	e.pos = make([]string, 0, 5)
+	e.code = 0
 
-	 if len(szExtra) > 0 {
-	  e.s += strings.Join(szExtra, "")
-	 }
+	if len(szExtra) > 0 {
+		e.s += strings.Join(szExtra, "")
+	}
 
-	 if pErr, ok := err.(*errorString); ok {
-	  e.pos = append(e.pos, pErr.pos...)
-	  e.code = pErr.code
-	 }
+	if pErr, ok := err.(*errorString); ok {
+		e.pos = append(e.pos, pErr.pos...)
+		e.code = pErr.code
+	}
 
-	 if len(stackinfo) > 0 {
-	  e.pos = append(e.pos, stackinfo)
-	 }
+	if len(stackinfo) > 0 {
+		e.pos = append(e.pos, stackinfo)
+	}
 
-	 return e
+	return e
 }
 
 func ErrCode(err error, def ...int) int {

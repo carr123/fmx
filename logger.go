@@ -76,7 +76,7 @@ func LoggerWithFunc(bShowReqBody bool, bShowRespBody bool, fn LoggerFunc) Handle
 				io.WriteString(logWriter, "--------------------\r\n")
 				stack := stack(3)
 				panicInfo := fmt.Sprintf("PANIC: %s\r\n%s", e, stack)
-				c.AddError(NewError(panicInfo))
+				c.AddError(Errorf(0, panicInfo))
 				io.WriteString(logWriter, panicInfo)
 				fn(c, logWriter.Bytes())
 
