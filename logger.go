@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"net/http"
 	"os"
 	"time"
 )
@@ -79,10 +78,6 @@ func LoggerWithFunc(bShowReqBody bool, bShowRespBody bool, fn LoggerFunc) Handle
 				c.AddError(Errorf(0, panicInfo))
 				io.WriteString(logWriter, panicInfo)
 				fn(c, logWriter.Bytes())
-
-				if c.Writer.GetStatusCode() == 0 {
-					c.Writer.WriteHeader(http.StatusInternalServerError)
-				}
 			}
 		}()
 
