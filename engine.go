@@ -1,6 +1,9 @@
 package fmx
 
 import (
+	"os"
+	"os/exec"
+	"path/filepath"
 	"sync"
 
 	"github.com/CloudyKit/router"
@@ -28,4 +31,11 @@ func NewServeMux() *Engine {
 	}
 
 	return engine
+}
+
+func GetAppPath() string {
+	file, _ := exec.LookPath(os.Args[0])
+	apppath, _ := filepath.Abs(file)
+	dir := filepath.Dir(apppath)
+	return dir
 }
