@@ -1,4 +1,4 @@
-module fmx
+module github.com/carr123/fmx
 
 go 1.17
 
