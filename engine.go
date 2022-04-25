@@ -9,6 +9,10 @@ import (
 	"github.com/CloudyKit/router"
 )
 
+const (
+	Version string = "1.0.3"
+)
+
 type Engine struct {
 	*Router
 	httprouter *router.Router
